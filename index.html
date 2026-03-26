@@ -1,41 +1,49 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CineVerse 🎬</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<h1>CineVerse 🎬</h1>
+  <header>
+    <h1>CineVerse 🎬</h1>
+    <p id="statusText">Type your mood and get movie recommendations</p>
+    
+    <div class="search-container">
+      <input type="text" id="moodInput" placeholder="How are you feeling? (e.g., I want to laugh)">
+      <button onclick="detectMood()">Find Movies</button>
+    </div>
 
-<p>Type your mood and get movie recommendations</p>
+    <div class="controls">
+      <select id="languageSelect">
+        <option value="">All Languages</option>
+        <option value="English">English</option>
+        <option value="Telugu">Telugu</option>
+        <option value="Hindi">Hindi</option>
+      </select>
+      <button id="homeBtn" onclick="showAllMovies()">Reset to All 🏠</button>
+    </div>
+  </header>
 
-<input type="text" id="moodInput" placeholder="Enter your mood...">
-<button onclick="detectMood()">Find Movies</button>
-<!-- <button id="homeBtn" onclick="showAllMovies()" style="display:none;">Home</button> -->
+  <div id="movieContainer"></div>
 
-<div id="movieContainer"></div>
-
-<div class="top-bar">
-  <select id="languageSelect">
-    <option value="">All Languages</option>
-    <option value="English">English</option>
-    <option value="Telugu">Telugu</option>
-    <option value="Hindi">Hindi</option>
-  </select>
-</div>
-
-<!-- Modal -->
-<div id="movieModal" class="modal">
-  <div class="modal-content">
-    <span onclick="closeModal()" class="close">&times;</span>
-    <img id="modalPoster">
-    <h2 id="modalTitle"></h2>
-    <p id="modalRating"></p>
-    <p id="modalOverview"></p>
+  <div id="movieModal" class="modal">
+    <div class="modal-content">
+      <span onclick="closeModal()" class="close">&times;</span>
+      <div class="modal-body">
+        <img id="modalPoster" src="" alt="Movie Poster">
+        <div class="modal-info">
+          <h2 id="modalTitle"></h2>
+          <p id="modalRating"></p>
+          <p id="modalOverview"></p>
+        </div>
+      </div>
+    </div>
   </div>
-</div>
 
-<script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>

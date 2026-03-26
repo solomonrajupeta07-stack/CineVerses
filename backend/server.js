@@ -8,6 +8,13 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// ✅ 1. DEBUGGING MIDDLEWARE (See every request in your terminal)
+app.use((req, res, next) => {
+  console.log(`${req.method} request to ${req.url}`);
+  if (req.method === "POST") console.log("Body:", req.body);
+  next();
+});
+
 // ✅ TEST ROUTE
 app.get("/", (req, res) => {
   res.send("Backend working 🚀");
@@ -18,10 +25,21 @@ app.get("/movies", (req, res) => {
   res.json(movies);
 });
 
+// ✅ LANGUAGE FILTER (Moved up for better organization)
+app.get("/language/:lang", (req, res) => {
+  const lang = req.params.lang.toLowerCase();
+  const filteredMovies = movies.filter(
+    movie => movie.language && movie.language.toLowerCase() === lang
+  );
+  res.json(filteredMovies);
+});
+
 // ✅ AI MOOD DETECTION
 app.post("/mood", (req, res) => {
   try {
-    const text = (req.body.text || "").toLowerCase();
+    // 🔧 FIX: Check for BOTH 'text' or 'mood' to prevent frontend mismatch
+    const userInput = req.body.text || req.body.mood || ""; 
+    const text = userInput.toLowerCase();
 
     if (!text) {
       return res.json({ mood: "unknown", movies: [] });
@@ -35,23 +53,14 @@ app.post("/mood", (req, res) => {
       horror: ["fear","scary","ghost","dark","nightmare","terror","haunted","creepy","kill","evil","danger","blood"]
     };
 
-    let scores = {
-      comedy: 0,
-      drama: 0,
-      action: 0,
-      romance: 0,
-      horror: 0
-    };
+    let scores = { comedy: 0, drama: 0, action: 0, romance: 0, horror: 0 };
 
-    const words = text
-      .replace(/[^\w\s]/gi, "")
-      .split(/\s+/);
+    // Clean text and split into words
+    const words = text.replace(/[^\w\s]/gi, "").split(/\s+/);
 
     words.forEach(word => {
       for (let mood in moodMap) {
-        if (moodMap[mood].includes(word)) {
-          scores[mood]++;
-        }
+        if (moodMap[mood].includes(word)) scores[mood]++;
       }
     });
 
@@ -65,18 +74,20 @@ app.post("/mood", (req, res) => {
       }
     }
 
-    const filteredMovies =
-      detectedMood === "unknown"
-        ? []
-        : movies.filter(movie =>
-            movie.genre &&
-            movie.genre.includes(detectedMood)
-          );
+    // Filter movies based on genre
+   const filteredMovies =
+  detectedMood === "unknown"
+    ? []
+    : movies.filter(movie => {
+        // 1. Ensure movie.genre exists and is an array
+        if (!movie.genre || !Array.isArray(movie.genre)) return false;
 
-    res.json({
-      mood: detectedMood,
-      movies: filteredMovies
-    });
+        // 2. Check if any genre in the array matches the detected mood
+        return movie.genre.some(g => g.toLowerCase() === detectedMood.toLowerCase());
+      });
+
+    console.log(`Detected: ${detectedMood} | Found: ${filteredMovies.length} movies`);
+    res.json({ mood: detectedMood, movies: filteredMovies });
 
   } catch (error) {
     console.error("Error:", error);
@@ -84,19 +95,8 @@ app.post("/mood", (req, res) => {
   }
 });
 
-// ✅ IMPORTANT (Render compatible)
+// ✅ RENDER COMPATIBLE PORT
 const PORT = process.env.PORT || 5000;
-
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-});
-
-app.get("/language/:lang", (req, res) => {
-  const lang = req.params.lang.toLowerCase();
-
-  const filteredMovies = movies.filter(
-    movie => movie.language.toLowerCase() === lang
-  );
-
-  res.json(filteredMovies);
 });
