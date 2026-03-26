@@ -1,0 +1,53 @@
+body {
+  font-family: Arial;
+  text-align: center;
+  background: #111;
+  color: white;
+}
+
+input {
+  padding: 10px;
+  width: 200px;
+}
+
+button {
+  padding: 10px;
+  margin: 5px;
+  cursor: pointer;
+}
+
+#movieContainer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.movie {
+  margin: 10px;
+  cursor: pointer;
+}
+
+.movie img {
+  width: 150px;
+  height: 220px;
+}
+
+/* Modal */
+.modal {
+  display: none;
+  position: fixed;
+  top: 20%;
+  left: 35%;
+  background: #222;
+  padding: 20px;
+}
+
+.modal img {
+  width: 200px;
+}
+
+.close {
+  cursor: pointer;
+  float: right;
+  font-size: 20px;
+}

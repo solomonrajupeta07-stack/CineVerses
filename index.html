@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>CineVerse 🎬</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>CineVerse 🎬</h1>
+
+<p>Type your mood and get movie recommendations</p>
+
+<input type="text" id="moodInput" placeholder="Enter your mood...">
+<button onclick="detectMood()">Find Movies</button>
+<button id="homeBtn" onclick="showAllMovies()" style="display:none;">Home</button>
+
+<div id="movieContainer"></div>
+
+<!-- Modal -->
+<div id="movieModal" class="modal">
+  <div class="modal-content">
+    <span onclick="closeModal()" class="close">&times;</span>
+    <img id="modalPoster">
+    <h2 id="modalTitle"></h2>
+    <p id="modalRating"></p>
+    <p id="modalOverview"></p>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
