@@ -106,3 +106,25 @@ function showAllMovies() {
 
   document.getElementById("homeBtn").style.display = "none";
 }
+
+const languageSelect = document.getElementById("languageSelect");
+
+languageSelect.addEventListener("change", async function () {
+  const selectedLang = this.value;
+
+  let url = "https://your-backend-url.onrender.com/movies";
+
+  if (selectedLang !== "") {
+    url = `https://your-backend-url.onrender.com/language/${selectedLang}`;
+  }
+
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+
+    displayMovies(data);
+
+  } catch (err) {
+    console.error(err);
+  }
+});

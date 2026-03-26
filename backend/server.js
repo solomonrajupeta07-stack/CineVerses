@@ -90,3 +90,13 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+app.get("/language/:lang", (req, res) => {
+  const lang = req.params.lang.toLowerCase();
+
+  const filteredMovies = movies.filter(
+    movie => movie.language.toLowerCase() === lang
+  );
+
+  res.json(filteredMovies);
+});

@@ -2,6 +2,7 @@ const movies = [
   {
     name: "The Hangover",
     genre: ["comedy"],
+    language: "English",
     rating: 7.7,
     overview: "Three friends wake up after a wild bachelor party in Las Vegas.",
     poster: "https://image.tmdb.org/t/p/w500/uluhlXubGu1VxU63X9VHCLWDAYP.jpg"
@@ -9,6 +10,7 @@ const movies = [
   {
     name: "Superbad",
     genre: ["comedy"],
+     language: "English",
     rating: 7.6,
     overview: "Two high school friends plan a big party night.",
     poster: "https://image.tmdb.org/t/p/w500/ek8e8txUyUwd2BNqj6lFEerJfbq.jpg"
@@ -16,6 +18,7 @@ const movies = [
   {
     name: "Titanic",
     genre: ["romance", "drama"],
+     language: "English",
     rating: 7.9,
     overview: "A love story aboard Titanic.",
     poster: "https://image.tmdb.org/t/p/w500/9xjZS2rlVxm8SFx8kPC3aIGCOYQ.jpg"
@@ -23,6 +26,7 @@ const movies = [
   {
     name: "The Notebook",
     genre: ["romance"],
+     language: "English",
     rating: 7.8,
     overview: "A touching love story.",
     poster: "https://image.tmdb.org/t/p/w500/qom1SZSENdmHFNZBXbtJAU0WTlC.jpg"
@@ -30,6 +34,7 @@ const movies = [
   {
     name: "Avengers: Endgame",
     genre: ["action"],
+     language: "English",
     rating: 8.4,
     overview: "Avengers unite to defeat Thanos.",
     poster: "https://image.tmdb.org/t/p/w500/or06FN3Dka5tukK1e9sl16pB3iy.jpg"
@@ -37,6 +42,7 @@ const movies = [
   {
     name: "Mad Max: Fury Road",
     genre: ["action"],
+     language: "English",
     rating: 8.1,
     overview: "Post-apocalyptic survival action.",
     poster: "https://image.tmdb.org/t/p/w500/8tZYtuWezp8JbcsvHYO0O46tFbo.jpg"
@@ -44,6 +50,7 @@ const movies = [
   {
     name: "The Conjuring",
     genre: ["horror"],
+     language: "English",
     rating: 7.5,
     overview: "Paranormal investigation.",
     poster: "https://image.tmdb.org/t/p/w500/wVYREutTvI2tmxr6ujrHT704wGF.jpg"
@@ -51,6 +58,7 @@ const movies = [
   {
     name: "It",
     genre: ["horror"],
+     language: "English",
     rating: 7.3,
     overview: "Kids face a terrifying clown.",
     poster: "https://image.tmdb.org/t/p/w500/9E2y5Q7WlCVNEhP5GiVTjhEhx1o.jpg"
@@ -58,6 +66,7 @@ const movies = [
   {
     name: "The Pursuit of Happyness",
     genre: ["drama"],
+     language: "English",
     rating: 8.0,
     overview: "A father struggles for a better life.",
     poster: "https://image.tmdb.org/t/p/w500/gKkXqF0F6lG9H9r8P6V9K8N2K1L.jpg"
@@ -65,6 +74,7 @@ const movies = [
   {
     name: "Joker",
     genre: ["drama"],
+     language: "English",
     rating: 8.4,
     overview: "A man becomes a criminal mastermind.",
     poster: "https://image.tmdb.org/t/p/w500/udDclJoHjfjb8Ekgsd4FDteOkCU.jpg"
