@@ -3,7 +3,7 @@ let allMovies = [];
 // ✅ LOAD ALL MOVIES ON HOME SCREEN
 window.onload = async function () {
   try {
-    const res = await fetch("http://localhost:5000/movies");
+    const res = await fetch("https://cineverse-backend-zvq1.onrender.com/movies");
     allMovies = await res.json();
 
     displayMovies(allMovies); // 🔥 show all movies
@@ -27,7 +27,7 @@ async function detectMood() {
   }
 
   try {
-    const res = await fetch("http://localhost:5000/mood", {
+    const res = await fetch("https://cineverse-backend-zvq1.onrender.com/mood", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
