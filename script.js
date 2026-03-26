@@ -27,6 +27,27 @@ window.onload = async function () {
     }
 };
 
+// ✅ DISPLAY MOVIES FUNCTION
+function displayMovies(movieList) {
+    const container = document.getElementById("movieContainer");
+    if (!container) return;
+    container.innerHTML = "";
+    
+    if (!movieList || movieList.length === 0) {
+        container.innerHTML = "<p>No movies found 😢</p>";
+        return;
+    }
+
+    movieList.forEach(movie => {
+        container.innerHTML += `
+            <div class="movie" onclick="openModal('${movie.name}')">
+                <img src="${movie.poster}">
+                <h3>${movie.name}</h3>
+            </div>
+        `;
+    });
+}
+
 // ✅ 2. ENTER KEY FEATURE
 document.getElementById("moodInput").addEventListener("keypress", function (e) {
     if (e.key === "Enter") {
@@ -76,20 +97,22 @@ async function detectMood(existingMood = null) {
 }
 
 // ✅ 4. LANGUAGE FILTER LOGIC
-async function fetchByLanguage(lang) {
+languageSelect.addEventListener("change", async function () {
+    const selectedLang = this.value;
+    // 🔧 FIX: If no language is selected, use the base /movies URL
+    let url = selectedLang 
+        ? `https://cineverse-backend-zvq1.onrender.com/language/${selectedLang}`
+        : `https://cineverse-backend-zvq1.onrender.com/movies`;
+
     try {
-        const res = await fetch(`https://cineverse-backend-zvq1.onrender.com/language/${lang}`);
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("Server responded with 404");
         const data = await res.json();
-        
-        if (!data || data.length === 0) {
-            document.getElementById("movieContainer").innerHTML = "<h2>No movies found 😢</h2>";
-            return;
-        }
         displayMovies(data);
     } catch (err) {
         console.error("Language Fetch Error:", err);
     }
-}
+});
 
 // ✅ 5. HANDLE BROWSER BACK/FORWARD BUTTONS
 window.onpopstate = async function (event) {

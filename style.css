@@ -1,16 +1,18 @@
 /* General Layout */
 body {
-  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-family: 'Montserrat', sans-serif;
   text-align: center;
-  background: #0f0f0f; /* Darker, modern background */
+  background: #0f0f0f; 
   color: #ffffff;
   margin: 0;
   padding: 20px;
 }
 
 h1 {
-  color: #e50914; /* Netflix Red */
-  font-size: 3rem;
+  font-family: 'Bebas Neue', cursive;
+  color: #e50914; 
+  font-size: 4rem;
+  letter-spacing: 3px;
   margin-bottom: 10px;
 }
 
@@ -20,6 +22,7 @@ h1 {
 }
 
 input {
+  font-family: 'Montserrat', sans-serif;
   padding: 12px 20px;
   width: 300px;
   border-radius: 25px;
@@ -29,6 +32,7 @@ input {
 }
 
 button {
+  font-family: 'Montserrat', sans-serif;
   padding: 12px 25px;
   margin: 5px;
   cursor: pointer;
@@ -36,7 +40,7 @@ button {
   color: white;
   border: none;
   border-radius: 25px;
-  font-weight: bold;
+  font-weight: 700;
   transition: transform 0.2s, background 0.3s;
 }
 
@@ -46,6 +50,7 @@ button:hover {
 }
 
 #languageSelect {
+  font-family: 'Montserrat', sans-serif;
   padding: 10px;
   background: #333;
   color: white;
@@ -85,6 +90,8 @@ button:hover {
 }
 
 .movie h3 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
   font-size: 14px;
   margin-top: 10px;
   white-space: nowrap;
@@ -92,7 +99,7 @@ button:hover {
   text-overflow: ellipsis;
 }
 
-/* Modal Styling - Fixed Centering */
+/* Modal Styling */
 .modal {
   display: none; 
   position: fixed; 
@@ -101,7 +108,7 @@ button:hover {
   top: 0;
   width: 100%; 
   height: 100%; 
-  background-color: rgba(0,0,0,0.9); /* Dim the background */
+  background-color: rgba(0,0,0,0.9);
 }
 
 .modal-content {
@@ -113,13 +120,37 @@ button:hover {
   max-width: 700px;
   position: relative;
   text-align: left;
-  display: flex;
-  gap: 25px;
 }
 
-.modal-content img {
-  width: 250px;
-  border-radius: 10px;
+.modal-body {
+  display: flex;
+  gap: 30px;
+  align-items: flex-start;
+  margin-top: 10px;
+}
+
+.modal-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+#modalTitle {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 3rem;
+  margin: 0;
+}
+
+#modalRating {
+  font-weight: 700;
+  color: #ffcc00; 
+  margin: 0;
+}
+
+#modalOverview {
+  line-height: 1.6;
+  color: #ccc;
 }
 
 .close {
@@ -128,12 +159,7 @@ button:hover {
   right: 20px;
   color: #aaa;
   font-size: 28px;
-  font-weight: bold;
   cursor: pointer;
-}
-
-.close:hover {
-  color: white;
 }
 
 /* Responsive for Mobile */
@@ -143,75 +169,11 @@ button:hover {
     align-items: center;
     text-align: center;
   }
-
-  .modal-content {
-    width: 90%;
-    margin: 10% auto;
-    padding: 20px;
-  }
-
-  .modal-content img {
-    width: 100%; /* Poster takes full width on mobile */
-    max-width: 200px;
-  }
+  .modal-content { width: 90%; }
 }
 
-/* Fix for the new Modal Structure */
-.modal-body {
-  display: flex;
-  gap: 30px;
-  align-items: flex-start;
-  margin-top: 10px;
-}
-
-.modal-info {
-  flex: 1; /* Takes up remaining space */
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-#modalRating {
-  font-size: 1.1rem;
-  color: #ffcc00; /* Gold color for rating */
-  margin: 0;
-}
-
-#modalOverview {
-  line-height: 1.6;
-  color: #ccc;
-  font-size: 1rem;
-}
-
-.loading-spinner {
-  border: 4px solid rgba(255, 255, 255, 0.1);
-  border-left-color: #e50914;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  animation: spin 1s linear infinite;
-  margin: 20px auto;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-/* Custom Scrollbar for Chrome/Safari */
-::-webkit-scrollbar {
-  width: 10px;
-}
-
-::-webkit-scrollbar-track {
-  background: #0f0f0f;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #333;
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #e50914;
-}
-
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: #0f0f0f; }
+::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #e50914; }
