@@ -12,16 +12,18 @@
 
 <input type="text" id="moodInput" placeholder="Enter your mood...">
 <button onclick="detectMood()">Find Movies</button>
-<button id="homeBtn" onclick="showAllMovies()" style="display:none;">Home</button>
+<!-- <button id="homeBtn" onclick="showAllMovies()" style="display:none;">Home</button> -->
 
 <div id="movieContainer"></div>
 
-<select id="languageSelect">
-  <option value="">All Languages</option>
-  <option value="English">English</option>
-  <option value="Telugu">Telugu</option>
-  <option value="Hindi">Hindi</option>
-</select>
+<div class="top-bar">
+  <select id="languageSelect">
+    <option value="">All Languages</option>
+    <option value="English">English</option>
+    <option value="Telugu">Telugu</option>
+    <option value="Hindi">Hindi</option>
+  </select>
+</div>
 
 <!-- Modal -->
 <div id="movieModal" class="modal">

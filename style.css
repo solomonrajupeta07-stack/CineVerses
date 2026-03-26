@@ -51,3 +51,15 @@ button {
   float: right;
   font-size: 20px;
 }
+
+.top-bar {
+  display: flex;
+  justify-content: center;
+  margin: 20px;
+}
+
+#languageSelect {
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 8px;
+}
