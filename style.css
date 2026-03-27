@@ -61,9 +61,10 @@ button:hover {
 /* Movie Grid */
 #movieContainer {
   display: grid;
+  /* Desktop default: auto-fill */
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 20px;
-  padding: 20px;
+  gap: 15px;
+  padding: 10px;
   max-width: 1200px;
   margin: 0 auto;
 }
@@ -84,7 +85,7 @@ button:hover {
 
 .movie img {
   width: 100%;
-  height: 260px;
+  height: 260px; /* Standard height for desktop */
   object-fit: cover;
   border-radius: 5px;
 }
@@ -160,16 +161,54 @@ button:hover {
   color: #aaa;
   font-size: 28px;
   cursor: pointer;
+  z-index: 10;
 }
 
-/* Responsive for Mobile */
+/* 📱 Responsive for Mobile */
 @media (max-width: 650px) {
+  /* 1. Grid Fix: Ensures exactly 2 movies per row */
+  #movieContainer {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    padding: 5px;
+  }
+
+  .movie img {
+    height: 200px; /* Slightly shorter for mobile layout */
+  }
+
+  .movie h3 {
+    font-size: 12px;
+  }
+
+  /* 2. Modal Size Fix: Ensures it fits and is scrollable on phones */
+  .modal-content {
+    width: 92%; /* Fits within mobile screen width */
+    margin: 10px auto; 
+    padding: 20px;
+    max-height: 90vh; /* Prevents overflow off-screen */
+    overflow-y: auto; /* Scroll inside the modal if text is long */
+  }
+
   .modal-body {
     flex-direction: column;
     align-items: center;
     text-align: center;
+    gap: 15px;
   }
-  .modal-content { width: 90%; }
+
+  .modal-content img {
+    width: 160px; /* Compact image for mobile */
+    height: auto;
+  }
+
+  #modalTitle {
+    font-size: 2rem;
+  }
+
+  input {
+    width: 80%; /* Input field doesn't overflow mobile */
+  }
 }
 
 /* Custom Scrollbar */
