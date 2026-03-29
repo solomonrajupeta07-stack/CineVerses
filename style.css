@@ -61,12 +61,12 @@ button:hover {
 /* Movie Grid */
 #movieContainer {
   display: grid;
-  /* Desktop default: auto-fill */
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 15px;
   padding: 10px;
   max-width: 1200px;
   margin: 0 auto;
+  justify-content: center; /* Centers the whole grid */
 }
 
 .movie {
@@ -76,6 +76,9 @@ button:hover {
   transition: transform 0.3s ease;
   cursor: pointer;
   box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+  display: flex; /* Fix alignment */
+  flex-direction: column;
+  align-items: center;
 }
 
 .movie:hover {
@@ -85,8 +88,8 @@ button:hover {
 
 .movie img {
   width: 100%;
-  height: 260px; /* Standard height for desktop */
-  object-fit: cover;
+  aspect-ratio: 2 / 3; /* ⚡ Forces all images to the same ratio */
+  object-fit: cover; /* Prevents stretching */
   border-radius: 5px;
 }
 
@@ -95,9 +98,11 @@ button:hover {
   font-weight: 700;
   font-size: 14px;
   margin-top: 10px;
+  width: 100%; /* Important for text-overflow */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-align: center;
 }
 
 /* Modal Styling */
@@ -166,28 +171,31 @@ button:hover {
 
 /* 📱 Responsive for Mobile */
 @media (max-width: 650px) {
-  /* 1. Grid Fix: Ensures exactly 2 movies per row */
   #movieContainer {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-    padding: 5px;
+    grid-template-columns: repeat(2, 1fr); /* 2 equal columns */
+    gap: 12px;
+    padding: 10px;
+    justify-items: center; /* Centers cards in columns */
   }
 
-  .movie img {
-    height: 200px; /* Slightly shorter for mobile layout */
+  .movie {
+    width: 100%; /* Card fills the grid cell */
+    max-width: 160px; /* Optional: prevents cards from getting too huge */
   }
 
   .movie h3 {
     font-size: 12px;
   }
 
-  /* 2. Modal Size Fix: Ensures it fits and is scrollable on phones */
+  /* Modal Size Fix */
   .modal-content {
-    width: 92%; /* Fits within mobile screen width */
-    margin: 10px auto; 
+    width: 90%; 
+    margin: 20px auto; 
     padding: 20px;
-    max-height: 90vh; /* Prevents overflow off-screen */
-    overflow-y: auto; /* Scroll inside the modal if text is long */
+    max-height: 85vh; 
+    overflow-y: auto; 
+    left: 0;
+    right: 0;
   }
 
   .modal-body {
@@ -198,8 +206,9 @@ button:hover {
   }
 
   .modal-content img {
-    width: 160px; /* Compact image for mobile */
+    width: 150px; 
     height: auto;
+    aspect-ratio: 2 / 3;
   }
 
   #modalTitle {
@@ -207,7 +216,7 @@ button:hover {
   }
 
   input {
-    width: 80%; /* Input field doesn't overflow mobile */
+    width: 80%; 
   }
 }
 
