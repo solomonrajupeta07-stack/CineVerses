@@ -6,45 +6,31 @@ const movies = require("./movies");
 
 const app = express();
 
-/* ✅ Initialize Gemini */
-if (!process.env.GEMINI_API_KEY) {
-  console.error("❌ GEMINI_API_KEY is missing");
+/* ✅ Gemini Setup */
+const apiKey = process.env.GEMINI_API_KEY;
+if (!apiKey) {
+  console.error("❌ CRITICAL: GEMINI_API_KEY is missing from Environment Variables");
 }
+const genAI = new GoogleGenerativeAI(apiKey || "dummy_key");
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-
-/* ✅ Middleware */
 app.use(cors());
 app.use(express.json());
 
-/* ✅ Logging */
-app.use((req, res, next) => {
-  console.log(`${req.method} ${req.url}`);
-  next();
-});
-
-/* ✅ Root Route */
+/* ✅ Health Check (Crucial for Render Deployment) */
 app.get("/", (req, res) => {
-  res.send("CineVerse Backend (Gemini) is Online 🚀");
+  res.send("CineVerse Backend (Gemini) is Online");
 });
 
-/* ✅ Get All Movies */
 app.get("/movies", (req, res) => {
   res.json(movies);
 });
 
-/* ✅ Language Filter */
 app.get("/language/:lang", (req, res) => {
   const lang = req.params.lang.toLowerCase();
-
-  const filtered = movies.filter(
-    (m) => m.language && m.language.toLowerCase() === lang
-  );
-
+  const filtered = movies.filter(m => m.language && m.language.toLowerCase() === lang);
   res.json(filtered);
 });
 
-/* ✅ Mood → Genre Mapping */
 const moodToGenre = {
   happy: ["comedy", "family"],
   sad: ["drama", "romance"],
@@ -54,79 +40,49 @@ const moodToGenre = {
   motivational: ["biography", "drama"],
 };
 
-/* ✅ Available Genres */
-const availableGenres = [
-  "action",
-  "comedy",
-  "romance",
-  "drama",
-  "horror",
-  "thriller",
-  "biography",
-  "family",
-];
+const availableGenres = ["action", "comedy", "romance", "drama", "horror", "thriller", "biography", "family"];
 
-/* ✅ Safe Movie Filter */
+/* ✅ Helper: Standardized Movie Filter */
 function filterMoviesByGenres(genres) {
+  if (!genres || genres.length === 0) return [];
   return movies.filter((movie) => {
     if (!movie.genre) return false;
-
-    if (Array.isArray(movie.genre)) {
-      return movie.genre.some((g) =>
-        genres.includes(g.toLowerCase())
-      );
-    }
-
-    return genres.includes(movie.genre.toLowerCase());
+    const movieGenre = movie.genre.toLowerCase();
+    return genres.some(g => movieGenre.includes(g));
   });
 }
 
-/* ✅ Mood + Genre Route */
+/* ✅ MAIN ROUTE */
 app.post("/mood", async (req, res) => {
   try {
     const { text } = req.body;
-
-    console.log("Incoming text:", text);
-
-    if (!text) {
-      return res.status(400).json({ error: "No text provided" });
-    }
+    if (!text) return res.status(400).json({ error: "No text provided" });
 
     const userText = text.toLowerCase();
 
-    /* 🔥 STEP 1: Direct Genre */
-    const detectedGenre = availableGenres.find((g) =>
-      userText.includes(g)
-    );
+    /* STEP 1: Direct Genre Detection (Saves API calls) */
+    const detectedGenre = availableGenres.find(g => userText.includes(g));
 
     if (detectedGenre) {
-      const filteredMovies = filterMoviesByGenres([detectedGenre]);
-
       return res.json({
         type: "genre",
         value: detectedGenre,
-        movies: filteredMovies,
+        movies: filterMoviesByGenres([detectedGenre]),
       });
     }
 
-    /* 🔥 STEP 2: Gemini AI Mood Detection */
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    /* STEP 2: Gemini AI Mood Detection */
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    
+    const prompt = `You are a movie mood analyzer. Analyze the user's text and respond with ONLY one of these words: happy, sad, romantic, action, horror, motivational. Do not use punctuation. Text: "${text}"`;
 
-    const result = await model.generateContent(
-      `Detect user mood from this text. 
-       Reply ONLY one word: happy, sad, romantic, action, horror, motivational.
-       Text: ${text}`
-    );
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    let mood = response.text().trim().toLowerCase().replace(/[^a-z]/g, ""); // Removes punctuation/newlines
 
-    let mood = result.response.text().trim().toLowerCase();
-
-    // 🔥 Clean output (important)
-    mood = mood.replace(".", "").replace("\n", "");
-
-    console.log("Detected mood:", mood);
+    console.log("Detected Mood:", mood);
 
     const genres = moodToGenre[mood] || [];
-
     const filteredMovies = filterMoviesByGenres(genres);
 
     res.json({
@@ -136,17 +92,13 @@ app.post("/mood", async (req, res) => {
     });
 
   } catch (error) {
-    console.error("❌ ERROR:", error.message);
-
-    res.status(500).json({
-      error: "Server failed",
-      details: error.message,
-    });
+    console.error("❌ AI/Server Error:", error.message);
+    res.status(500).json({ error: "Internal server error", details: error.message });
   }
 });
 
-/* ✅ Start Server */
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`✅ Server running on port ${PORT}`);
+/* ✅ Render-Ready Start */
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`✅ Server live on port ${PORT}`);
 });
