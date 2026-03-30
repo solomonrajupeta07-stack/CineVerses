@@ -12,9 +12,12 @@
   <header>
     <h1>CineVerse</h1>
     
-    <div class="input-area">
-      <input type="text" id="user-input" placeholder="How are you feeling today?" />
-      <button onclick="detectMood()">Find Movies</button>
+    <div class="chat-container">
+      <div id="chat-box"></div>
+      <div class="input-area">
+        <input type="text" id="user-input" placeholder="How are you feeling today?" />
+        <button onclick="sendMessage()">Find Movies</button>
+      </div>
     </div>
 
     <div class="controls">
@@ -24,11 +27,9 @@
         <option value="Telugu">Telugu</option>
         <option value="Hindi">Hindi</option>
       </select>
-      <button id="homeBtn" onclick="location.reload()">Reset to All</button>
+      <button id="homeBtn" onclick="showAllMovies()">Reset to All</button>
     </div>
   </header>
-
-  <p id="statusUpdate"></p>
 
   <div id="movieContainer"></div>
 
