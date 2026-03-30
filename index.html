@@ -1,47 +1,63 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>CineVerse</title>
-<link rel="stylesheet" href="style.css">
-</head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CineVerse</title>
 
+  <link rel="stylesheet" href="style.css">
+
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+</head>
 <body>
 
-<h1>CineVerse 🎬</h1>
+  <header>
+    <h1>CineVerse</h1>
 
-<div class="search-container">
-  <input id="user-input" placeholder="Try: happy, love, action...">
-  <button onclick="searchMovies()">Search</button>
-</div>
+    <!-- 🔍 SEARCH BAR -->
+    <div class="search-container">
+      <input 
+        type="text" 
+        id="user-input" 
+        placeholder="Enter mood (happy, sad, action, love...)" 
+      />
+      <button onclick="searchMovies()">Search</button>
+    </div>
 
-<select id="languageSelect">
-  <option value="">All</option>
-  <option value="english">English</option>
-  <option value="hindi">Hindi</option>
-</select>
+    <!-- 🎛 CONTROLS -->
+    <div class="controls">
+      <select id="languageSelect">
+        <option value="">All Languages</option>
+        <option value="english">English</option>
+        <option value="telugu">Telugu</option>
+        <option value="hindi">Hindi</option>
+      </select>
 
-<button onclick="showAllMovies()">Reset</button>
+      <button onclick="showAllMovies()">Reset to All</button>
+    </div>
+  </header>
 
-<div id="movieContainer"></div>
+  <!-- 🎬 MOVIES -->
+  <div id="movieContainer"></div>
 
-<!-- MODAL -->
-<div id="movieModal" class="modal">
-  <div class="modal-content">
-    <span class="close" onclick="closeModal()">×</span>
+  <!-- 🎥 MODAL -->
+  <div id="movieModal" class="modal">
+    <div class="modal-content">
+      <span onclick="closeModal()" class="close">&times;</span>
 
-    <div class="modal-body">
-      <img id="modalPoster">
+      <div class="modal-body">
+        <img id="modalPoster" src="" alt="Movie Poster">
 
-      <div>
-        <h2 id="modalTitle"></h2>
-        <p id="modalRating"></p>
-        <p id="modalOverview"></p>
+        <div class="modal-info">
+          <h2 id="modalTitle"></h2>
+          <p id="modalRating"></p>
+          <p id="modalOverview"></p>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<script src="script.js"></script>
+  <script src="script.js"></script>
 
 </body>
 </html>

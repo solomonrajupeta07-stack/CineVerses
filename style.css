@@ -1,31 +1,88 @@
+/* General Layout */
 body {
-  background: #141414;
-  color: white;
+  font-family: 'Montserrat', sans-serif;
   text-align: center;
-  font-family: sans-serif;
+  background: #141414; 
+  color: #ffffff;
+  margin: 0;
+  padding: 20px;
 }
 
-input, button {
-  padding: 10px;
+/* Title */
+h1 {
+  font-family: 'Bebas Neue', cursive;
+  color: #e50914; 
+  font-size: 4rem;
+  letter-spacing: 3px;
+}
+
+/* 🔍 SEARCH BAR */
+.search-container {
+  margin: 20px 0;
+}
+
+input {
+  padding: 12px 20px;
+  width: 300px;
+  border-radius: 25px;
+  border: none;
+  outline: none;
+}
+
+button {
+  padding: 12px 25px;
   margin: 5px;
+  background: #e50914;
+  color: white;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
 }
 
+button:hover {
+  background: #ff0a16;
+}
+
+/* Language dropdown */
+#languageSelect {
+  padding: 10px;
+  background: #333;
+  color: white;
+}
+
+/* 🎬 MOVIE GRID */
 #movieContainer {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px,1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 15px;
+  max-width: 1200px;
+  margin: auto;
 }
 
 .movie {
+  background: #1a1a1a;
+  padding: 10px;
+  border-radius: 10px;
   cursor: pointer;
+  transition: 0.3s;
+}
+
+.movie:hover {
+  transform: translateY(-10px);
 }
 
 .movie img {
   width: 100%;
   aspect-ratio: 2/3;
+  object-fit: cover;
 }
 
-/* MODAL */
+.movie h3 {
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+/* 🎥 MODAL */
 .modal {
   display: none;
   position: fixed;
@@ -35,10 +92,12 @@ input, button {
 }
 
 .modal-content {
-  background: #222;
+  background: #181818;
   margin: 5% auto;
   padding: 20px;
-  width: 70%;
+  width: 80%;
+  max-width: 700px;
+  border-radius: 10px;
 }
 
 .modal-body {
@@ -46,6 +105,27 @@ input, button {
   gap: 20px;
 }
 
-#modalPoster {
-  width: 200px;
+#modalTitle {
+  font-size: 2rem;
+}
+
+.close {
+  position: absolute;
+  right: 20px;
+  cursor: pointer;
+}
+
+/* 📱 MOBILE */
+@media (max-width: 650px) {
+  #movieContainer {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  input {
+    width: 80%;
+  }
+
+  .modal-body {
+    flex-direction: column;
+  }
 }
