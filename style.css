@@ -1,4 +1,4 @@
-/* General Layout and Base Styles */
+/* General Layout */
 body {
   font-family: 'Montserrat', sans-serif;
   text-align: center;
@@ -6,293 +6,126 @@ body {
   color: #ffffff;
   margin: 0;
   padding: 20px;
-  box-sizing: border-box;
 }
 
-/* Branding Typography */
+/* Title */
 h1 {
   font-family: 'Bebas Neue', cursive;
   color: #e50914; 
   font-size: 4rem;
   letter-spacing: 3px;
-  margin-bottom: 10px;
 }
 
-/* Search and Filters Layout */
-.search-container, .controls {
+/* 🔍 SEARCH BAR */
+.search-container {
   margin: 20px 0;
 }
 
-/* Global Input Styling */
 input {
-  font-family: 'Montserrat', sans-serif;
   padding: 12px 20px;
   width: 300px;
   border-radius: 25px;
   border: none;
   outline: none;
-  font-size: 16px;
 }
 
-/* Interactive Button Styling */
 button {
-  font-family: 'Montserrat', sans-serif;
   padding: 12px 25px;
   margin: 5px;
-  cursor: pointer;
-  background-color: #e50914;
+  background: #e50914;
   color: white;
   border: none;
   border-radius: 25px;
-  font-weight: 700;
-  transition: transform 0.2s, background 0.3s;
+  cursor: pointer;
 }
 
 button:hover {
-  background-color: #ff0a16;
-  transform: scale(1.05);
+  background: #ff0a16;
 }
 
-/* Dropdown Menu Styling */
+/* Language dropdown */
 #languageSelect {
-  font-family: 'Montserrat', sans-serif;
   padding: 10px;
   background: #333;
   color: white;
-  border-radius: 5px;
-  border: 1px solid #444;
 }
 
-/* Responsive Movie Grid System */
+/* 🎬 MOVIE GRID */
 #movieContainer {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 15px;
-  padding: 10px;
   max-width: 1200px;
-  margin: 0 auto;
-  justify-content: center;
+  margin: auto;
 }
 
-/* Individual Movie Card Styling */
 .movie {
   background: #1a1a1a;
   padding: 10px;
   border-radius: 10px;
-  transition: transform 0.3s ease;
   cursor: pointer;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.5);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  box-sizing: border-box;
+  transition: 0.3s;
 }
 
 .movie:hover {
   transform: translateY(-10px);
-  background: #252525;
 }
 
-/* Ensure images maintain a consistent movie poster aspect ratio */
 .movie img {
   width: 100%;
-  aspect-ratio: 2 / 3;
+  aspect-ratio: 2/3;
   object-fit: cover;
-  border-radius: 5px;
 }
 
-/* Movie title text truncation for grid uniformity */
 .movie h3 {
-  font-family: 'Montserrat', sans-serif;
-  font-weight: 700;
   font-size: 14px;
   margin-top: 10px;
-  width: 100%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-align: center;
 }
 
-/* Full-screen Modal Overlay */
+/* 🎥 MODAL */
 .modal {
-  display: none; 
-  position: fixed; 
-  z-index: 1000; 
-  left: 0;
-  top: 0;
-  width: 100%; 
-  height: 100%; 
-  background-color: rgba(0,0,0,0.9);
+  display: none;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.9);
 }
 
-/* Central Content Box for the Modal */
 .modal-content {
-  background-color: #181818;
-  margin: 5% auto; 
-  padding: 30px;
-  border-radius: 15px;
+  background: #181818;
+  margin: 5% auto;
+  padding: 20px;
   width: 80%;
   max-width: 700px;
-  position: relative;
-  text-align: left;
+  border-radius: 10px;
 }
 
-/* Flex layout for modal image and text information */
 .modal-body {
   display: flex;
-  gap: 30px;
-  align-items: flex-start;
-  margin-top: 10px;
-}
-
-.modal-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
+  gap: 20px;
 }
 
 #modalTitle {
-  font-family: 'Bebas Neue', cursive;
-  font-size: 3rem;
-  margin: 0;
+  font-size: 2rem;
 }
 
-#modalRating {
-  font-weight: 700;
-  color: #ffcc00; 
-  margin: 0;
-}
-
-#modalOverview {
-  line-height: 1.6;
-  color: #ccc;
-}
-
-/* Modal Close Button */
 .close {
   position: absolute;
-  top: 15px;
   right: 20px;
-  color: #aaa;
-  font-size: 28px;
   cursor: pointer;
-  z-index: 10;
 }
 
-/* Chat Interface Component */
-.chat-container {
-  width: 400px;
-  margin: auto;
-  margin-top: 50px;
-}
-
-#chat-box {
-  height: 400px;
-  overflow-y: auto;
-  background: #000;
-  padding: 10px;
-  border-radius: 10px;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Individual Chat Bubble Styles */
-.message {
-  padding: 10px;
-  margin: 10px;
-  border-radius: 8px;
-  max-width: 70%;
-  word-wrap: break-word;
-}
-
-.user {
-  background: #e50914;
-  margin-left: auto;
-  text-align: right;
-}
-
-.bot {
-  background: #333;
-  margin-right: auto;
-  text-align: left;
-}
-
-/* Chat Input Area Configuration */
-.input-area {
-  display: flex;
-  margin-top: 10px;
-}
-
-/* Specific overrides for chat-specific inputs */
-.input-area input {
-  flex: 1;
-  padding: 10px;
-  border-radius: 5px;
-  width: auto;
-}
-
-.input-area button {
-  padding: 10px;
-  margin-left: 5px;
-  border-radius: 5px;
-}
-
-/* Responsive Adjustments for Mobile Viewports */
+/* 📱 MOBILE */
 @media (max-width: 650px) {
   #movieContainer {
     grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-    padding: 10px;
-    justify-items: center;
   }
 
-  .movie {
-    width: 100%;
-    max-width: 160px;
-  }
-
-  .movie h3 {
-    font-size: 12px;
-  }
-
-  .modal-content {
-    width: 90%; 
-    margin: 20px auto; 
-    padding: 20px;
-    max-height: 85vh; 
-    overflow-y: auto; 
+  input {
+    width: 80%;
   }
 
   .modal-body {
     flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 15px;
-  }
-
-  .modal-content img {
-    width: 150px; 
-    height: auto;
-    aspect-ratio: 2 / 3;
-  }
-
-  #modalTitle {
-    font-size: 2rem;
-  }
-
-  input {
-    width: 80%; 
-  }
-
-  .chat-container {
-    width: 90%;
   }
 }
-
-/* Webkit-based Browser Scrollbar Customization */
-::-webkit-scrollbar { width: 10px; }
-::-webkit-scrollbar-track { background: #0f0f0f; }
-::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
-::-webkit-scrollbar-thumb:hover { background: #e50914; }

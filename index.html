@@ -4,40 +4,50 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CineVerse</title>
+
   <link rel="stylesheet" href="style.css">
+
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
   <header>
     <h1>CineVerse</h1>
-    
-    <div class="chat-container">
-      <div id="chat-box"></div>
-      <div class="input-area">
-        <input type="text" id="user-input" placeholder="How are you feeling today?" />
-        <button onclick="sendMessage()">Find Movies</button>
-      </div>
+
+    <!-- 🔍 SEARCH BAR -->
+    <div class="search-container">
+      <input 
+        type="text" 
+        id="user-input" 
+        placeholder="Enter mood (happy, sad, action, love...)" 
+      />
+      <button onclick="searchMovies()">Search</button>
     </div>
 
+    <!-- 🎛 CONTROLS -->
     <div class="controls">
       <select id="languageSelect">
         <option value="">All Languages</option>
-        <option value="English">English</option>
-        <option value="Telugu">Telugu</option>
-        <option value="Hindi">Hindi</option>
+        <option value="english">English</option>
+        <option value="telugu">Telugu</option>
+        <option value="hindi">Hindi</option>
       </select>
-      <button id="homeBtn" onclick="showAllMovies()">Reset to All</button>
+
+      <button onclick="showAllMovies()">Reset to All</button>
     </div>
   </header>
 
+  <!-- 🎬 MOVIES -->
   <div id="movieContainer"></div>
 
+  <!-- 🎥 MODAL -->
   <div id="movieModal" class="modal">
     <div class="modal-content">
       <span onclick="closeModal()" class="close">&times;</span>
+
       <div class="modal-body">
         <img id="modalPoster" src="" alt="Movie Poster">
+
         <div class="modal-info">
           <h2 id="modalTitle"></h2>
           <p id="modalRating"></p>
@@ -48,5 +58,6 @@
   </div>
 
   <script src="script.js"></script>
+
 </body>
 </html>
