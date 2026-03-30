@@ -1,28 +1,27 @@
 /* Global storage for the fetched movie list */
 let allMovies = []; 
 
-/* 1. INITIALIZE APP: Fetches data and handles URL parameters on load */
+/* 1. INITIALIZE APP: Fetches all movies on load to populate the grid */
 window.onload = async function () {
     const urlParams = new URLSearchParams(window.location.search);
     
     try {
-        /* Fetch initial movie data from the Render backend */
+        /* Initial fetch to get the full database for modal and default view */
         const res = await fetch("https://cineverse-backend-zvq1.onrender.com/movies");
         allMovies = await res.json();
 
-        /* Determine view based on URL parameters for sharing/history */
+        /* Handle URL parameters for direct linking/sharing */
         if (urlParams.has("lang")) {
             const lang = urlParams.get("lang");
             const langEl = document.getElementById("languageSelect");
             if (langEl) langEl.value = lang;
-            fetchByLanguage(lang);
+            updateByLanguage(lang);
         } else if (urlParams.has("mood")) {
             const mood = urlParams.get("mood");
             detectMood(mood);
         } else {
             displayMovies(allMovies);
-            const statusText = document.querySelector("p");
-            if (statusText) statusText.innerText = "All Movies";
+            updateStatusText("All Movies");
         }
     } catch (err) {
         console.error("Initialization Error:", err);
@@ -30,7 +29,7 @@ window.onload = async function () {
     }
 };
 
-/* 2. DISPLAY LOGIC: Renders movie cards into the grid */
+/* 2. DISPLAY LOGIC: Renders movie cards into the grid container */
 function displayMovies(movieList) {
     const container = document.getElementById("movieContainer");
     if (!container) return;
@@ -38,11 +37,11 @@ function displayMovies(movieList) {
     container.innerHTML = "";
     
     if (!movieList || movieList.length === 0) {
-        container.innerHTML = "<p>No movies found</p>";
+        container.innerHTML = "<p>No movies found matching your request.</p>";
         return;
     }
 
-    /* Build HTML string first then inject once for better performance */
+    /* Build HTML string first for performance optimization */
     const movieHTML = movieList.map(movie => `
         <div class="movie" onclick="openModal('${movie.name}')">
             <img src="${movie.poster}" alt="${movie.name}">
@@ -53,194 +52,114 @@ function displayMovies(movieList) {
     container.innerHTML = movieHTML;
 }
 
-/* 3. EVENT LISTENERS: Handling user input and keyboard actions */
-document.getElementById("user-input")?.addEventListener("keypress", function (e) {
-    if (e.key === "Enter") {
-        sendMessage();
-    }
-});
-
-/* 4. CHAT SYSTEM: Handles natural language movie discovery */
-async function sendMessage() {
-  const input = document.getElementById("user-input");
-  if (!input) return;
-  
-  const message = input.value;
-  if (!message) return;
-
-  addMessage(message, "user");
-
-  try {
-    const res = await fetch("https://cineverse-backend-zvq1.onrender.com/mood", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ text: message })
-    });
-
-    const data = await res.json();
-
-    /* Bot response logic based on genre or mood detection */
-    addMessage(
-      data.type === "genre"
-        ? "Showing " + data.value + " movies"
-        : "Detected mood: " + data.value,
-      "bot"
-    );
-
-    displayMovies(data.movies || []);
-
-  } catch (err) {
-    console.error("Chat Error:", err);
-    addMessage("Error connecting to server", "bot");
-  }
-
-  input.value = "";
-}
-
-/* Helper to append messages to the chat box */
-function addMessage(text, sender) {
-  const chatBox = document.getElementById("chat-box");
-  if (!chatBox) return;
-
-  const msg = document.createElement("div");
-  msg.classList.add("message", sender);
-  msg.innerText = text;
-
-  chatBox.appendChild(msg);
-  /* Auto-scroll to the bottom of the chat */
-  chatBox.scrollTop = chatBox.scrollHeight;
-}
-
-/* 5. MOOD SYSTEM: Fetches recommendations based on user sentiment */
+/* 3. MOOD SYSTEM: Sends user text to AI backend for sentiment-based filtering */
 async function detectMood(existingMood = null) {
     const inputEl = document.getElementById("user-input");
-    const input = existingMood || (inputEl ? inputEl.value : "");
+    const inputVal = existingMood || (inputEl ? inputEl.value : "");
     
-    if (!input) {
-        alert("Please describe your mood");
+    if (!inputVal) {
+        alert("Please describe how you are feeling");
         return;
     }
+
+    updateStatusText("Analyzing your mood...");
 
     try {
         const res = await fetch("https://cineverse-backend-zvq1.onrender.com/mood", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ text: input })
+            body: JSON.stringify({ text: inputVal }) // Backend expects { text }
         });
 
-        if (!res.ok) throw new Error(`Server Error: ${res.status}`);
+        if (!res.ok) throw new Error("Server Error");
 
         const data = await res.json();
 
-        if (!data || !data.value) {
-            const statusText = document.querySelector("p");
-            if (statusText) statusText.innerText = "Something went wrong";
-            return;
-        }
-
-        const statusText = document.querySelector("p");
-        if (statusText) {
-            statusText.innerText = data.type === "genre"
-                ? "Showing " + data.value + " movies"
-                : "Detected mood: " + data.value;
-        }
-
+        /* Update UI with the result from AI */
+        const displayLabel = data.type === "genre" 
+            ? "Showing " + data.value + " movies" 
+            : "Detected mood: " + data.value;
+            
+        updateStatusText(displayLabel);
         displayMovies(data.movies || []);
         
-        /* Update browser history without refreshing the page */
+        /* Update history so the back button works */
         history.pushState({ type: data.type, value: data.value }, "", `?${data.type}=${data.value}`);
         
     } catch (err) {
         console.error("Mood Detection Error:", err);
-        alert("Check console for backend error details.");
+        updateStatusText("Error finding movies");
     }
+
+    if (inputEl) inputEl.value = ""; // Clear input after search
 }
 
-/* 6. LANGUAGE FILTER: Direct API call for specific language subsets */
+/* 4. LANGUAGE FILTER: Direct filtering via specific API endpoint */
 const languageSelect = document.getElementById("languageSelect");
 if (languageSelect) {
-    languageSelect.addEventListener("change", async function () {
-        const selectedLang = this.value;
-
-        let url = selectedLang 
-            ? `https://cineverse-backend-zvq1.onrender.com/language/${selectedLang}`
-            : `https://cineverse-backend-zvq1.onrender.com/movies`;
-
-        try {
-            const res = await fetch(url);
-            const data = await res.json();
-            displayMovies(data);
-            history.pushState({ type: "language", value: selectedLang }, "", `?lang=${selectedLang}`);
-        } catch (err) {
-            console.error("Language Fetch Error:", err);
-        }
+    languageSelect.addEventListener("change", function () {
+        updateByLanguage(this.value);
     });
 }
 
-/* 7. HISTORY HANDLING: Enables back/forward button functionality */
-window.onpopstate = async function (event) {
-    if (!event.state) {
-        displayMovies(allMovies);
-        return;
-    }
+async function updateByLanguage(lang) {
+    let url = lang 
+        ? `https://cineverse-backend-zvq1.onrender.com/language/${lang}`
+        : `https://cineverse-backend-zvq1.onrender.com/movies`;
 
-    const { type, value } = event.state;
-
-    if (type === "language") {
-        /* Re-trigger language fetch on history navigation */
-        const res = await fetch(`https://cineverse-backend-zvq1.onrender.com/language/${value}`);
+    try {
+        const res = await fetch(url);
         const data = await res.json();
         displayMovies(data);
-    } else {
-        const res = await fetch("https://cineverse-backend-zvq1.onrender.com/mood", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ text: value }), 
-        });
-
-        const data = await res.json();
-        displayMovies(data.movies || []);
+        updateStatusText(lang ? "Movies in " + lang : "All Movies");
+        history.pushState({ type: "language", value: lang }, "", lang ? `?lang=${lang}` : "/");
+    } catch (err) {
+        console.error("Language Fetch Error:", err);
     }
-};
+}
 
-/* 8. MODAL SYSTEM: Controls display of detailed movie information */
+/* 5. MODAL SYSTEM: Controls the detailed movie view popup */
 function openModal(movieName) {
-  const movie = allMovies.find(m => m.name === movieName);
-  
-  if (!movie) return;
+    const movie = allMovies.find(m => m.name === movieName);
+    if (!movie) return;
 
-  const poster = document.getElementById("modalPoster");
-  const title = document.getElementById("modalTitle");
-  const rating = document.getElementById("modalRating");
-  const overview = document.getElementById("modalOverview");
-  const modal = document.getElementById("movieModal");
+    document.getElementById("modalPoster").src = movie.poster;
+    document.getElementById("modalTitle").innerText = movie.name;
 
-  if (poster) poster.src = movie.poster;
-  if (title) title.innerText = movie.name;
-
-  const genreDisplay = Array.isArray(movie.genre) 
-    ? movie.genre.join(", ") 
-    : movie.genre;
-
-  if (rating) {
-    rating.innerHTML = `<strong>Rating:</strong> ${movie.rating} | <strong>Genre:</strong> ${genreDisplay}`;
-  }
-
-  if (overview) overview.innerText = movie.overview;
-  if (modal) modal.style.display = "block";
+    const genreDisplay = Array.isArray(movie.genre) ? movie.genre.join(", ") : movie.genre;
+    document.getElementById("modalRating").innerHTML = `<strong>Rating:</strong> ${movie.rating} | <strong>Genre:</strong> ${genreDisplay}`;
+    document.getElementById("modalOverview").innerText = movie.overview;
+    document.getElementById("movieModal").style.display = "block";
 }
 
 function closeModal() {
-  const modal = document.getElementById("movieModal");
-  if (modal) modal.style.display = "none";
+    document.getElementById("movieModal").style.display = "none";
 }
 
-/* Close modal when user clicks outside of the content area */
+/* 6. HELPERS & EVENT BINDING */
+function updateStatusText(text) {
+    const statusText = document.querySelector("p#statusDisplay");
+    if (statusText) statusText.innerText = text;
+}
+
+/* Bind Enter key to the mood search input */
+document.getElementById("user-input")?.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") detectMood();
+});
+
+/* Click outside modal to close */
 window.onclick = function(event) {
-  const modal = document.getElementById("movieModal");
-  if (event.target == modal) {
-    modal.style.display = "none";
-  }
+    const modal = document.getElementById("movieModal");
+    if (event.target == modal) closeModal();
+};
+
+/* Handle browser Back/Forward buttons */
+window.onpopstate = function (event) {
+    if (!event.state) {
+        displayMovies(allMovies);
+        updateStatusText("All Movies");
+        return;
+    }
+    // Refresh page with state logic if needed or simply use local data
+    location.reload(); 
 };
