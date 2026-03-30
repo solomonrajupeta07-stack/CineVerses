@@ -1,19 +1,17 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const { OpenAI } = require("openai");
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 const movies = require("./movies");
 
 const app = express();
 
-/* ✅ Initialize OpenAI safely */
-if (!process.env.OPENAI_API_KEY) {
-  console.error("❌ OPENAI_API_KEY is missing");
+/* ✅ Initialize Gemini */
+if (!process.env.GEMINI_API_KEY) {
+  console.error("❌ GEMINI_API_KEY is missing");
 }
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 /* ✅ Middleware */
 app.use(cors());
@@ -27,7 +25,7 @@ app.use((req, res, next) => {
 
 /* ✅ Root Route */
 app.get("/", (req, res) => {
-  res.send("CineVerse Backend is Online 🚀");
+  res.send("CineVerse Backend (Gemini) is Online 🚀");
 });
 
 /* ✅ Get All Movies */
@@ -68,19 +66,17 @@ const availableGenres = [
   "family",
 ];
 
-/* ✅ Safe Movie Filter Function */
+/* ✅ Safe Movie Filter */
 function filterMoviesByGenres(genres) {
   return movies.filter((movie) => {
     if (!movie.genre) return false;
 
-    // If multiple genres
     if (Array.isArray(movie.genre)) {
       return movie.genre.some((g) =>
         genres.includes(g.toLowerCase())
       );
     }
 
-    // Single genre
     return genres.includes(movie.genre.toLowerCase());
   });
 }
@@ -98,7 +94,7 @@ app.post("/mood", async (req, res) => {
 
     const userText = text.toLowerCase();
 
-    /* 🔥 STEP 1: Check direct genre */
+    /* 🔥 STEP 1: Direct Genre */
     const detectedGenre = availableGenres.find((g) =>
       userText.includes(g)
     );
@@ -113,25 +109,19 @@ app.post("/mood", async (req, res) => {
       });
     }
 
-    /* 🔥 STEP 2: AI Mood Detection */
-    const aiResponse = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
-        {
-          role: "system",
-          content:
-            "Detect user mood. Reply ONLY one word: happy, sad, romantic, action, horror, motivational",
-        },
-        {
-          role: "user",
-          content: text,
-        },
-      ],
-    });
+    /* 🔥 STEP 2: Gemini AI Mood Detection */
+    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
-    const mood = aiResponse.choices[0].message.content
-      .trim()
-      .toLowerCase();
+    const result = await model.generateContent(
+      `Detect user mood from this text. 
+       Reply ONLY one word: happy, sad, romantic, action, horror, motivational.
+       Text: ${text}`
+    );
+
+    let mood = result.response.text().trim().toLowerCase();
+
+    // 🔥 Clean output (important)
+    mood = mood.replace(".", "").replace("\n", "");
 
     console.log("Detected mood:", mood);
 
@@ -146,7 +136,7 @@ app.post("/mood", async (req, res) => {
     });
 
   } catch (error) {
-    console.error("❌ ERROR:", error);
+    console.error("❌ ERROR:", error.message);
 
     res.status(500).json({
       error: "Server failed",
