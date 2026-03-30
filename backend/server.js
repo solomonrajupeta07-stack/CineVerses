@@ -6,14 +6,14 @@ const movies = require("./movies");
 
 const app = express();
 
-/* 1. INITIALIZE GEMINI */
+/* 1. INITIALIZE GEMINI (Use the 2026 Free Model) */
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 app.use(cors());
 app.use(express.json());
 
-/* Health Check for Render */
-app.get("/", (req, res) => res.send("CineVerse Backend (Gemini 1.5 Flash) is Online"));
+/* Render Health Check */
+app.get("/", (req, res) => res.send("CineVerse Backend (Gemini 3) is Online 🚀"));
 
 const moodToGenre = {
   happy: ["comedy", "family"],
@@ -30,9 +30,9 @@ app.post("/mood", async (req, res) => {
     const { text } = req.body;
     if (!text) return res.status(400).json({ error: "No text provided" });
 
-    /* ✅ Use Gemini 1.5 Flash (The current Free Tier model) */
+    /* ✅ Use Gemini 3 Flash (Free Tier) */
     const model = genAI.getGenerativeModel({ 
-        model: "gemini-1.5-flash" 
+        model: "gemini-3-flash-preview" 
     });
 
     const prompt = `Analyze this text and identify the user's mood. 
@@ -42,15 +42,21 @@ app.post("/mood", async (req, res) => {
     const result = await model.generateContent(prompt);
     const response = await result.response;
     
-    /* Clean the text to remove any accidental punctuation or extra words */
-    const mood = response.text().trim().toLowerCase().replace(/[^a-z]/g, "");
+    /* Stronger cleaning: keeps only letters to avoid 404/mapping errors */
+    const rawMood = response.text().trim().toLowerCase();
+    const mood = rawMood.match(/[a-z]+/g)?.[0] || "unknown";
 
     console.log("Detected Mood:", mood);
 
     const genres = moodToGenre[mood] || [];
-    const filteredMovies = movies.filter(movie => 
-      movie.genre && genres.includes(movie.genre.toLowerCase())
-    );
+    const filteredMovies = movies.filter(movie => {
+      if (!movie.genre) return false;
+      // Handle both string and array genres
+      const movieGenres = Array.isArray(movie.genre) 
+        ? movie.genre.map(g => g.toLowerCase()) 
+        : [movie.genre.toLowerCase()];
+      return genres.some(g => movieGenres.includes(g));
+    });
 
     res.json({
       type: "mood",
@@ -59,12 +65,12 @@ app.post("/mood", async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Gemini Error:", error.message);
-    res.status(500).json({ error: "AI processing failed", details: error.message });
+    console.error("Gemini API Error:", error.message);
+    res.status(500).json({ error: "AI failed", details: error.message });
   }
 });
 
-/* 3. PORT BINDING */
+/* 3. PORT BINDING FOR RENDER */
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
