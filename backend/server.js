@@ -6,98 +6,157 @@ const movies = require("./movies");
 
 const app = express();
 
-/* Check for API Key to prevent startup crashes on Render */
+/* ✅ Initialize OpenAI safely */
 if (!process.env.OPENAI_API_KEY) {
-  console.error("CRITICAL ERROR: OPENAI_API_KEY is missing from environment variables.");
+  console.error("❌ OPENAI_API_KEY is missing");
 }
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+/* ✅ Middleware */
 app.use(cors());
 app.use(express.json());
 
-/* Request Logging */
+/* ✅ Logging */
 app.use((req, res, next) => {
-  console.log(`${req.method} request to ${req.url}`);
+  console.log(`${req.method} ${req.url}`);
   next();
 });
 
-/* 1. ROOT ROUTE: Required for Render's health check */
+/* ✅ Root Route */
 app.get("/", (req, res) => {
-  res.send("CineVerse Backend is Online");
+  res.send("CineVerse Backend is Online 🚀");
 });
 
-/* 2. GET ALL MOVIES */
+/* ✅ Get All Movies */
 app.get("/movies", (req, res) => {
   res.json(movies);
 });
 
-/* 3. LANGUAGE FILTER */
+/* ✅ Language Filter */
 app.get("/language/:lang", (req, res) => {
   const lang = req.params.lang.toLowerCase();
-  const filteredMovies = movies.filter(
-    movie => movie.language && movie.language.toLowerCase() === lang
+
+  const filtered = movies.filter(
+    (m) => m.language && m.language.toLowerCase() === lang
   );
-  res.json(filteredMovies);
+
+  res.json(filtered);
 });
 
+/* ✅ Mood → Genre Mapping */
 const moodToGenre = {
   happy: ["comedy", "family"],
   sad: ["drama", "romance"],
   romantic: ["romance"],
   action: ["action", "thriller"],
   horror: ["horror", "thriller"],
-  motivational: ["biography", "drama"]
+  motivational: ["biography", "drama"],
 };
 
-const availableGenres = ["action", "comedy", "romance", "drama", "horror", "thriller", "biography", "family"];
+/* ✅ Available Genres */
+const availableGenres = [
+  "action",
+  "comedy",
+  "romance",
+  "drama",
+  "horror",
+  "thriller",
+  "biography",
+  "family",
+];
 
-/* 4. MOOD DETECTION ROUTE */
+/* ✅ Safe Movie Filter Function */
+function filterMoviesByGenres(genres) {
+  return movies.filter((movie) => {
+    if (!movie.genre) return false;
+
+    // If multiple genres
+    if (Array.isArray(movie.genre)) {
+      return movie.genre.some((g) =>
+        genres.includes(g.toLowerCase())
+      );
+    }
+
+    // Single genre
+    return genres.includes(movie.genre.toLowerCase());
+  });
+}
+
+/* ✅ Mood + Genre Route */
 app.post("/mood", async (req, res) => {
   try {
     const { text } = req.body;
-    if (!text) return res.status(400).json({ error: "No text provided" });
+
+    console.log("Incoming text:", text);
+
+    if (!text) {
+      return res.status(400).json({ error: "No text provided" });
+    }
 
     const userText = text.toLowerCase();
 
-    /* Step 1: Keyword Check */
-    const detectedGenre = availableGenres.find((genre) => userText.includes(genre));
+    /* 🔥 STEP 1: Check direct genre */
+    const detectedGenre = availableGenres.find((g) =>
+      userText.includes(g)
+    );
 
     if (detectedGenre) {
-      const filteredMovies = movies.filter((movie) => 
-        movie.genre && movie.genre.toLowerCase().includes(detectedGenre)
-      );
-      return res.json({ type: "genre", value: detectedGenre, movies: filteredMovies });
+      const filteredMovies = filterMoviesByGenres([detectedGenre]);
+
+      return res.json({
+        type: "genre",
+        value: detectedGenre,
+        movies: filteredMovies,
+      });
     }
 
-    /* Step 2: OpenAI Analysis */
-    const response = await openai.chat.completions.create({
+    /* 🔥 STEP 2: AI Mood Detection */
+    const aiResponse = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
-        { role: "system", content: "Detect user mood. Reply with ONE word: happy, sad, romantic, action, horror, motivational" },
-        { role: "user", content: text },
+        {
+          role: "system",
+          content:
+            "Detect user mood. Reply ONLY one word: happy, sad, romantic, action, horror, motivational",
+        },
+        {
+          role: "user",
+          content: text,
+        },
       ],
     });
 
-    const mood = response.choices[0].message.content.trim().toLowerCase();
+    const mood = aiResponse.choices[0].message.content
+      .trim()
+      .toLowerCase();
+
+    console.log("Detected mood:", mood);
+
     const genres = moodToGenre[mood] || [];
 
-    const filteredMovies = movies.filter((movie) =>
-      movie.genre && genres.includes(movie.genre.toLowerCase())
-    );
+    const filteredMovies = filterMoviesByGenres(genres);
 
-    res.json({ type: "mood", value: mood, movies: filteredMovies });
+    res.json({
+      type: "mood",
+      value: mood,
+      movies: filteredMovies,
+    });
 
   } catch (error) {
-    console.error("OpenAI or Server Error:", error.message);
-    res.status(500).json({ error: "Failed to process mood. Check server logs." });
+    console.error("❌ ERROR:", error);
+
+    res.status(500).json({
+      error: "Server failed",
+      details: error.message,
+    });
   }
 });
 
-/* 5. START SERVER */
+/* ✅ Start Server */
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`✅ Server running on port ${PORT}`);
 });
