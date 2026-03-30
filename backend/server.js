@@ -1,31 +1,38 @@
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+const { OpenAI } = require("openai"); // Added missing OpenAI import
 const movies = require("./movies");
 
 const app = express();
 
-// ✅ Middleware
+/* Initialize OpenAI with API Key from environment variables */
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+/* Middleware Configuration */
 app.use(cors());
 app.use(express.json());
 
-// ✅ 1. DEBUGGING MIDDLEWARE (See every request in your terminal)
+/* 1. DEBUGGING MIDDLEWARE: Logs incoming requests for development monitoring */
 app.use((req, res, next) => {
   console.log(`${req.method} request to ${req.url}`);
   if (req.method === "POST") console.log("Body:", req.body);
   next();
 });
 
-// ✅ TEST ROUTE
+/* 2. HEALTH CHECK ROUTE: Confirms server status */
 app.get("/", (req, res) => {
-  res.send("Backend working 🚀");
+  res.send("Backend working");
 });
 
-// ✅ GET ALL MOVIES
+/* 3. DATA RETRIEVAL: Returns the full movie database */
 app.get("/movies", (req, res) => {
   res.json(movies);
 });
 
-// ✅ LANGUAGE FILTER (Moved up for better organization)
+/* 4. LANGUAGE FILTERING: Returns movies based on specific language parameter */
 app.get("/language/:lang", (req, res) => {
   const lang = req.params.lang.toLowerCase();
   const filteredMovies = movies.filter(
@@ -34,68 +41,94 @@ app.get("/language/:lang", (req, res) => {
   res.json(filteredMovies);
 });
 
-// ✅ AI MOOD DETECTION
-app.post("/mood", (req, res) => {
+/* Mapping of detected moods to movie genres */
+const moodToGenre = {
+  happy: ["comedy", "family"],
+  sad: ["drama", "romance"],
+  romantic: ["romance"],
+  action: ["action", "thriller"],
+  horror: ["horror", "thriller"],
+  motivational: ["biography", "drama"]
+};
+
+/* List of genres supported for direct keyword detection */
+const availableGenres = [
+  "action",
+  "comedy",
+  "romance",
+  "drama",
+  "horror",
+  "thriller",
+  "biography",
+  "family"
+];
+
+/* 5. AI MOOD & GENRE DETECTION: Processes user text to find relevant movies */
+app.post("/mood", async (req, res) => {
   try {
-    // 🔧 FIX: Check for BOTH 'text' or 'mood' to prevent frontend mismatch
-    const userInput = req.body.text || req.body.mood || ""; 
-    const text = userInput.toLowerCase();
+    /* Updated to 'text' to match frontend JSON.stringify({ text: message }) */
+    const { text } = req.body;
 
     if (!text) {
-      return res.json({ mood: "unknown", movies: [] });
+      return res.status(400).json({ error: "No text provided" });
     }
 
-    const moodMap = {
-      comedy: ["happy","joy","fun","excited","great","awesome","fantastic","cheerful","smile","laugh","enjoy","good","cool","nice","funny"],
-      drama: ["sad","depressed","cry","upset","lonely","hurt","pain","bad","down","low","tired","emotional","stress","broken"],
-      action: ["thrill","adventure","exciting","energy","power","fight","fast","rush","intense","hero","battle","win","war"],
-      romance: ["love","romantic","crush","relationship","kiss","date","feelings","affection","heart","couple","miss"],
-      horror: ["fear","scary","ghost","dark","nightmare","terror","haunted","creepy","kill","evil","danger","blood"]
-    };
+    const userText = text.toLowerCase();
 
-    let scores = { comedy: 0, drama: 0, action: 0, romance: 0, horror: 0 };
+    /* STEP 1: Direct Genre Detection (Keyword matching) */
+    const detectedGenre = availableGenres.find((genre) =>
+      userText.includes(genre)
+    );
 
-    // Clean text and split into words
-    const words = text.replace(/[^\w\s]/gi, "").split(/\s+/);
+    if (detectedGenre) {
+      const filteredMovies = movies.filter((movie) => 
+        movie.genre && movie.genre.toLowerCase().includes(detectedGenre)
+      );
 
-    words.forEach(word => {
-      for (let mood in moodMap) {
-        if (moodMap[mood].includes(word)) scores[mood]++;
-      }
+      return res.json({
+        type: "genre",
+        value: detectedGenre,
+        movies: filteredMovies,
+      });
+    }
+
+    /* STEP 2: AI Sentiment Analysis if no direct genre is found */
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        {
+          role: "system",
+          content:
+            "Detect the mood of the user. Reply with only one word from: happy, sad, romantic, action, horror, motivational",
+        },
+        {
+          role: "user",
+          content: text,
+        },
+      ],
     });
 
-    let detectedMood = "unknown";
-    let maxScore = 0;
+    const mood = response.choices[0].message.content.trim().toLowerCase();
+    const genres = moodToGenre[mood] || [];
 
-    for (let mood in scores) {
-      if (scores[mood] > maxScore) {
-        maxScore = scores[mood];
-        detectedMood = mood;
-      }
-    }
+    /* Filter movies that match any of the genres associated with the detected mood */
+    const filteredMovies = movies.filter((movie) =>
+      movie.genre && genres.includes(movie.genre.toLowerCase())
+    );
 
-    // Filter movies based on genre
-   const filteredMovies =
-  detectedMood === "unknown"
-    ? []
-    : movies.filter(movie => {
-        // 1. Ensure movie.genre exists and is an array
-        if (!movie.genre || !Array.isArray(movie.genre)) return false;
-
-        // 2. Check if any genre in the array matches the detected mood
-        return movie.genre.some(g => g.toLowerCase() === detectedMood.toLowerCase());
-      });
-
-    console.log(`Detected: ${detectedMood} | Found: ${filteredMovies.length} movies`);
-    res.json({ mood: detectedMood, movies: filteredMovies });
+    res.json({
+      type: "mood",
+      value: mood,
+      movies: filteredMovies,
+    });
 
   } catch (error) {
-    console.error("Error:", error);
-    res.status(500).json({ error: "Server error" });
+    console.error("Internal Server Error:", error);
+    res.status(500).json({ error: "AI processing error" });
   }
 });
 
-// ✅ RENDER COMPATIBLE PORT
+/* 6. SERVER STARTUP: Dynamic port selection for cloud deployment (Render) */
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
